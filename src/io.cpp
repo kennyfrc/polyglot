@@ -10,9 +10,10 @@
 #include <cstring>
 
 #include <sys/types.h>
-#include <unistd.h>
+#include "unistd.h"
 
-#include "io.h"
+#include "io_polyglot.h"
+#include <io.h>
 #include "util.h"
 
 // constants
@@ -72,7 +73,7 @@ void io_close(io_t * io) {
 
    my_log("> %s EOF\n",io->name);
 
-   if (close(io->out_fd) == -1) {
+   if (_close(io->out_fd) == -1) {
       my_fatal("io_close(): close(): %s\n",strerror(errno));
    }
 
@@ -282,7 +283,7 @@ static int my_read(int fd, char string[], int size) {
    ASSERT(size>0);
 
    do {
-      n = read(fd,string,size);
+      n = _read(fd,string,size);
    } while (n == -1 && errno == EINTR);
 
    if (n == -1) my_fatal("my_read(): read(): %s\n",strerror(errno));
@@ -304,7 +305,7 @@ static void my_write(int fd, const char string[], int size) {
 
    do {
 
-      n = write(fd,string,size);
+      n = _write(fd,string,size);
 
       // if (n == -1 && errno != EINTR && errno != EPIPE) my_fatal("my_write(): write(): %s\n",strerror(errno));
 

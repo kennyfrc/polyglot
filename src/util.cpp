@@ -12,8 +12,8 @@
 #include <cstring>
 #include <ctime>
 
-#include "main.h"
-#include "posix.h"
+//#include "main.h"
+//#include "posix.h"
 #include "util.h"
 
 // variables
@@ -181,7 +181,8 @@ void my_fatal(const char format[], ...) {
       // abort();
    } else {
       Error = true;
-      quit();
+      //quit();
+      exit(1);
    }
 }
 
@@ -319,8 +320,10 @@ void my_timer_start(my_timer_t * timer) {
    ASSERT(!timer->running);
 
    timer->running = true;
-   timer->start_real = now_real();
-   timer->start_cpu = now_cpu();
+   //timer->start_real = now_real();
+   //timer->start_cpu = now_cpu();
+   timer->start_real = 0;
+   timer->start_cpu = 0;
 }
 
 // my_timer_stop()
@@ -331,8 +334,8 @@ void my_timer_stop(my_timer_t * timer) {
 
    ASSERT(timer->running);
 
-   timer->elapsed_real += now_real() - timer->start_real;
-   timer->elapsed_cpu += now_cpu() - timer->start_cpu;
+   //timer->elapsed_real += now_real() - timer->start_real;
+   //timer->elapsed_cpu += now_cpu() - timer->start_cpu;
    timer->start_real = 0.0;
    timer->start_cpu = 0.0;
    timer->running = false;
@@ -347,7 +350,7 @@ double my_timer_elapsed_real(const my_timer_t * timer) {
    ASSERT(timer!=NULL);
 
    elapsed = timer->elapsed_real;
-   if (timer->running) elapsed += now_real() - timer->start_real;
+   //if (timer->running) elapsed += now_real() - timer->start_real;
 
    if (elapsed < 0.0) elapsed = 0.0;
 
@@ -363,7 +366,7 @@ double my_timer_elapsed_cpu(const my_timer_t * timer) {
    ASSERT(timer!=NULL);
 
    elapsed = timer->elapsed_cpu;
-   if (timer->running) elapsed += now_cpu() - timer->start_cpu;
+   //if (timer->running) elapsed += now_cpu() - timer->start_cpu;
 
    if (elapsed < 0.0) elapsed = 0.0;
 
