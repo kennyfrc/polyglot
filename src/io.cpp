@@ -13,8 +13,21 @@
 #include "unistd.h"
 
 #include "io_polyglot.h"
-#include <io.h>
 #include "util.h"
+
+#ifdef _MSC_VER
+
+#include "unistd_win32.h"
+#include <io.h>
+
+#else
+
+#include <unistd.h>
+#define _close(x) close(x)
+#define _read(x,y,z) read(x,y,z)
+#define _write(x,y,z) write(x,y,z)
+
+#endif
 
 // constants
 
