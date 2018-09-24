@@ -10,7 +10,6 @@
 #include <cstring>
 
 #include <sys/types.h>
-#include "unistd.h"
 
 #include "io_polyglot.h"
 #include "util.h"
