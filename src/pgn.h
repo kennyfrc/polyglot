@@ -35,6 +35,7 @@ struct pgn_t {
    bool token_first;
    
    long int last_stream_pos;
+   char last_read_comment[PGN_STRING_SIZE];
 
    char result[PGN_STRING_SIZE];
    char fen[PGN_STRING_SIZE];

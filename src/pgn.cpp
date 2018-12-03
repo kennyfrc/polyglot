@@ -549,6 +549,8 @@ static void pgn_read_token(pgn_t * pgn) {
 static void pgn_skip_blanks(pgn_t * pgn) {
 
    ASSERT(pgn!=NULL);
+   pgn->last_read_comment[0] = (char) 0;
+   unsigned int last_read_comment_idx = 0;
 
    while (true) {
 
@@ -556,6 +558,8 @@ static void pgn_skip_blanks(pgn_t * pgn) {
 
       if (false) {
 
+      } else if (pgn->char_hack == CHAR_EOF) {
+          break;
       } else if (isspace(pgn->char_hack)) {
 
          // skip white space
@@ -572,6 +576,8 @@ static void pgn_skip_blanks(pgn_t * pgn) {
                my_fatal("pgn_skip_blanks(): EOF in comment at line %d, column %d\n",pgn->char_line,pgn->char_column);
             }
 
+            pgn->last_read_comment[last_read_comment_idx++] = pgn->char_hack;
+
          } while (pgn->char_hack != '\n');
 
       } else if (pgn->char_hack == '%' && pgn->char_column == 0) {
@@ -585,6 +591,8 @@ static void pgn_skip_blanks(pgn_t * pgn) {
             if (pgn->char_hack == CHAR_EOF) {
                my_fatal("pgn_skip_blanks(): EOF in comment at line %d, column %d\n",pgn->char_line,pgn->char_column);
             }
+
+            pgn->last_read_comment[last_read_comment_idx++] = pgn->char_hack;
 
          } while (pgn->char_hack != '\n');
 
@@ -600,6 +608,8 @@ static void pgn_skip_blanks(pgn_t * pgn) {
                my_fatal("pgn_skip_blanks(): EOF in comment at line %d, column %d\n",pgn->char_line,pgn->char_column);
             }
 
+            pgn->last_read_comment[last_read_comment_idx++] = pgn->char_hack;
+
          } while (pgn->char_hack != '}');
 
       } else { // not a white space
@@ -607,6 +617,9 @@ static void pgn_skip_blanks(pgn_t * pgn) {
          break;
       }
    }
+
+   pgn->last_read_comment[last_read_comment_idx] = 0;
+
 }
 
 // is_symbol_start()
