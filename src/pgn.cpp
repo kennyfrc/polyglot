@@ -205,6 +205,7 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
    pgn->move_line = -1; // DEBUG
    pgn->move_column = -1; // DEBUG
+   pgn->last_read_nag[0] = 0;
 
    // loop
 
@@ -273,7 +274,13 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
          // skip optional NAGs
 
-         do pgn_token_read(pgn); while (pgn->token_type == TOKEN_NAG);
+         do {
+           pgn_token_read(pgn);
+           if (pgn->token_type == TOKEN_NAG) {
+               strcpy(pgn->last_read_nag, pgn->token_string);
+           }
+         }
+         while (pgn->token_type == TOKEN_NAG);
          pgn_token_unread(pgn);
 
          // return move
