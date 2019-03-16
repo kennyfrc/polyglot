@@ -244,6 +244,18 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
          return false;
 
+      } else if (pgn->token_type == '[') {
+
+         // game finished, we are reading the start of the tag of next game here
+
+         if (depth > 0) {
+            my_log("pgn_next_move(): malformed variation at line %d, column %d\n",pgn->token_line,pgn->token_column);
+         }
+
+         pgn_token_unread(pgn);
+
+         return false;
+
       } else {
 
          // skip optional move number
