@@ -7,6 +7,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 
 #include "pgn.h"
 #include "util.h"
@@ -191,6 +192,13 @@ bool pgn_next_game(pgn_t * pgn) {
    return true;
 }
 
+// std::ostream& operator<<(std::ostream& os, const pgn_t& p)
+// {
+//    return os << p.last_read_comment[PGN_STRING_SIZE] << std::endl
+//              << p.result[PGN_STRING_SIZE] << std::endl
+//              << p.fen[PGN_STRING_SIZE] << std::endl;
+// }
+
 // pgn_next_move()
 
 bool pgn_next_move(pgn_t * pgn, char string[], int size) {
@@ -215,13 +223,38 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
       pgn_token_read(pgn);
 
+
       if (false) {
 
       } else if (pgn->token_type == '(') {
 
-         // open RAV
-
+         // open RAV      
          depth++;
+
+         // skip optional move number
+         do {
+            pgn_token_read(pgn);
+         } while (pgn->token_type == '.' || pgn->token_type == TOKEN_INTEGER);
+         
+
+         // std::cout << "pgn is here" << std::endl;
+         // std::cout << pgn->token_type << std::endl;
+         // std::cout << pgn->token_string << std::endl;
+
+         // std::cout << pgn->token_line;
+         // std::cout << pgn->token_column;
+
+         // pgn_token_unread(pgn);
+         strcpy(string,pgn->token_string);
+         pgn->move_line = pgn->token_line;
+         pgn->move_column = pgn->token_column;
+
+         pgn_token_unread(pgn);
+
+         // return move
+
+
+
 
       } else if (pgn->token_type == ')') {
 
@@ -232,6 +265,11 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
          }
 
          depth--;
+
+         if (depth == 0) {
+            if (DispMove) printf("move=\"%s\"\n",string);
+            return true;
+         }
          ASSERT(depth>=0);
 
       } else if (pgn->token_type == TOKEN_RESULT) {
@@ -278,6 +316,8 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
             if (pgn->token_length >= size) {
                my_fatal("pgn_next_move(): move too long at line %d, column %d\n",pgn->token_line,pgn->token_column);
             }
+
+            // std::cout << "token string: " << pgn->token_string << std::endl;
 
             strcpy(string,pgn->token_string);
             pgn->move_line = pgn->token_line;
@@ -334,6 +374,7 @@ static void pgn_token_read(pgn_t * pgn) {
    // read a new token
 
    pgn_read_token(pgn);
+
    if (pgn->token_type == TOKEN_ERROR) my_log("pgn_token_read(): lexical error at line %d, column %d\n",pgn->char_line,pgn->char_column);
 
    if (DispToken) printf("< L%d C%d \"%s\" (%03X)\n",pgn->token_line,pgn->token_column,pgn->token_string,pgn->token_type);
