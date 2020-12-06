@@ -226,36 +226,6 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
       if (false) {
 
-      } else if (pgn->token_type == '(') {
-
-         // open RAV      
-         depth++;
-
-         // skip optional move number
-         do {
-            pgn_token_read(pgn);
-         } while (pgn->token_type == '.' || pgn->token_type == TOKEN_INTEGER);
-         
-
-         // std::cout << "pgn is here" << std::endl;
-         // std::cout << pgn->token_type << std::endl;
-         // std::cout << pgn->token_string << std::endl;
-
-         // std::cout << pgn->token_line;
-         // std::cout << pgn->token_column;
-
-         // pgn_token_unread(pgn);
-         strcpy(string,pgn->token_string);
-         pgn->move_line = pgn->token_line;
-         pgn->move_column = pgn->token_column;
-
-         pgn_token_unread(pgn);
-
-         // return move
-
-
-
-
       } else if (pgn->token_type == ')') {
 
          // close RAV
@@ -266,10 +236,6 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
          depth--;
 
-         if (depth == 0) {
-            if (DispMove) printf("move=\"%s\"\n",string);
-            return true;
-         }
          ASSERT(depth>=0);
 
       } else if (pgn->token_type == TOKEN_RESULT) {
@@ -296,6 +262,53 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
 
       } else {
 
+         if (pgn->token_type == '(') {
+
+            // open RAV information
+            depth++;
+
+            // std::cout << pgn->token_type << std::endl;
+
+            // skip optional move number
+            do {
+               pgn_token_read(pgn);
+            } while (pgn->token_type == '.' || pgn->token_type == TOKEN_INTEGER);
+            
+            // std::cout << pgn->token_string << std::endl;
+
+            // assign as variation
+            pgn->variation = true;
+            pgn->move_line = pgn->token_line;
+            pgn->move_column = pgn->token_column;
+
+            // store move for later use
+            // std::cout << "Variation? " << pgn->variation << std::endl;
+            // std::cout << "Move: " << pgn->token_string << std::endl;
+            strcpy(string, pgn->token_string);
+
+            // skip optional NAGs and read the rest
+
+            do {
+              pgn_token_read(pgn);
+              if (pgn->token_type == TOKEN_NAG) {
+                  strcpy(pgn->last_read_nag, pgn->token_string);
+              }
+            } while (pgn->token_type == TOKEN_NAG);
+
+            // std::cout << "variation here: " << string << " " << pgn->last_read_comment << std::endl;
+            // pgn_token_unread(pgn);
+
+            // std::cout << "depth: " << depth << std::endl;
+
+            depth--;
+
+            // if (depth == 0) {
+            if (DispMove) printf("move=\"%s\"\n",string);
+            return true;   
+            // }
+
+         }
+
          // skip optional move number
 
          if (pgn->token_type == TOKEN_INTEGER) {
@@ -312,14 +325,18 @@ bool pgn_next_move(pgn_t * pgn, char string[], int size) {
          // store move for later use
 
          if (depth == 0) {
-
             if (pgn->token_length >= size) {
                my_fatal("pgn_next_move(): move too long at line %d, column %d\n",pgn->token_line,pgn->token_column);
             }
 
-            // std::cout << "token string: " << pgn->token_string << std::endl;
+            // std::cout << pgn->token_string << std::endl;
+
+            
 
             strcpy(string,pgn->token_string);
+            pgn->variation = false;
+            // std::cout << "Variation: " << pgn->variation << std::endl;
+            // std::cout << "Move: " << pgn->token_string << std::endl;
             pgn->move_line = pgn->token_line;
             pgn->move_column = pgn->token_column;
          }

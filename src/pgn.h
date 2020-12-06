@@ -26,6 +26,7 @@ struct pgn_t {
    int char_column;
    bool char_unread;
    bool char_first;
+   bool variation;
 
    int token_type;
    char token_string[PGN_STRING_SIZE];
